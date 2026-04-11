@@ -1,38 +1,34 @@
-const express = require("express");
-const cors = require("cors");
-
-const app = express();
-
-// middleware
-app.use(cors({
-    origin: "*"
-}));
-app.use(express.json());
-
-// test route
-app.get("/", (req, res) => {
-    res.send("Server running 🚀");
-});
-
-// main reply route
 app.post("/reply", (req, res) => {
-    console.log("Incoming Data:", req.body);
+    console.log("Incoming Data:", JSON.stringify(req.body, null, 2));
 
-    const message =
-        req.body.message ||
-        req.body.text ||
-        req.body.msg ||
-        "";
+    // সব possible জায়গা থেকে message বের করা
+    let message = "";
+
+    if (typeof req.body === "string") {
+        message = req.body;
+    } else {
+        message =
+            req.body.message ||
+            req.body.text ||
+            req.body.msg ||
+            req.body.query ||
+            req.body.body ||
+            req.body.content ||
+            (req.body.data && req.body.data.message) ||
+            "";
+    }
+
+    message = message.toLowerCase();
 
     let reply = "Bujhte pari nai 😅";
 
-    if (message.toLowerCase().includes("hi")) {
+    if (message.includes("hi")) {
         reply = "Hello! Kemon aso?";
     } 
-    else if (message.toLowerCase().includes("price")) {
+    else if (message.includes("price")) {
         reply = "Price 450 taka 💰";
     } 
-    else if (message.toLowerCase().includes("order")) {
+    else if (message.includes("order")) {
         reply = "Order korte WhatsApp korun 📞";
     }
 
@@ -40,11 +36,4 @@ app.post("/reply", (req, res) => {
         reply: reply,
         message: reply
     });
-});
-
-// port fix (Render compatible)
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log("Server running on port " + PORT);
 });
