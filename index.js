@@ -15,6 +15,7 @@ app.post("/reply", (req, res) => {
     }
 
     res.json({
-        reply: reply
+        reply: reply,
+        message: reply
     });
 });
