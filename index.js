@@ -1,10 +1,9 @@
-const express = require("express");
-const app = express();
-
-app.use(express.json());
-
 app.post("/reply", (req, res) => {
-    const message = req.body.message;
+    const message =
+        req.body.message ||
+        req.body.text ||
+        req.body.msg ||
+        "";
 
     let reply = "Bujhte pari nai 😅";
 
@@ -15,13 +14,7 @@ app.post("/reply", (req, res) => {
         reply = "Price 450 taka 💰";
     }
 
-    res.json({ reply });
-});
-
-app.get("/", (req, res) => {
-    res.send("Server running 🚀");
-});
-
-app.listen(3000, () => {
-    console.log("Running...");
+    res.json({
+        reply: reply
+    });
 });
