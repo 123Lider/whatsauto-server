@@ -20,8 +20,6 @@ app.post("/reply", (req, res) => {
 
     message = message.toLowerCase();
 
-    let reply = "Bujhte pari nai 😅";
-
     if (message.includes("hi")) {
         reply = "Hello! Kemon aso?";
     } 
