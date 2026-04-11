@@ -17,12 +17,12 @@ app.post("/reply", (req, res) => {
     res.json({
         reply: reply,
         message: reply
-    });
-});
-const express = require("express");
+        const express = require("express");
 const cors = require("cors");
 
 const app = express();
 
 app.use(cors()); // 👈 এটা must
 app.use(express.json());
+    });
+});
