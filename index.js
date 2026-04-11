@@ -19,3 +19,10 @@ app.post("/reply", (req, res) => {
         message: reply
     });
 });
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+app.use(cors()); // 👈 এটা must
+app.use(express.json());
