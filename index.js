@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔥 Firebase Admin Setup
+// 🔥 Firebase setup
 const serviceAccount = require("./firebase-key.json");
 
 admin.initializeApp({
@@ -15,29 +15,33 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// 🔥 👉 এখানে তোর AI app এর API key বসা
-const DEFAULT_API_KEY = "sk-KQ936GT78"; // ⚠️ নিজেরটা বসা
+// 🔥 👉 তোর API key
+const DEFAULT_API_KEY = "sk-KQ936GT78";
 
-// 🔥 MAIN API (WhatsAuto use করবে)
+// 🔥 MAIN API
 app.post("/ai", async (req, res) => {
 
+    console.log("FULL BODY:", JSON.stringify(req.body, null, 2));
+
+    // 🔥 message detect (সব possible field)
+    const message =
+        req.body.message ||
+        req.body.msg ||
+        req.body.text ||
+        req.body.body ||
+        req.body.content ||
+        "";
+
+    console.log("MESSAGE:", message);
+
+    if (!message) {
+        return res.json({
+            reply: "msg pai nai ❌"
+        });
+    }
+
     try {
-       const message =
-    req.body.message ||
-    req.body.text ||
-    req.body.msg ||
-    "";
-
-console.log("Incoming:", req.body);
-
-if (!message) {
-    return res.json({
-        reply: "Message pai nai ❌"
-    });
-}
-
-        // 🔥 API key (fixed)
-        const apiKey = sk-KQ936GT78;
+        const apiKey = DEFAULT_API_KEY;
 
         // 🔍 user find
         const userSnap = await db.collection("users")
@@ -50,9 +54,9 @@ if (!message) {
 
         const uid = userSnap.docs[0].id;
 
-        console.log("User UID:", uid);
+        console.log("USER UID:", uid);
 
-        // 🧠 training check
+        // 🧠 training match
         const snap = await db.collection("training")
             .where("uid", "==", uid)
             .where("trigger", "==", message.toLowerCase())
@@ -61,31 +65,29 @@ if (!message) {
         if (!snap.empty) {
             const replyText = snap.docs[0].data().response;
 
-            console.log("Matched reply:", replyText);
+            console.log("REPLY:", replyText);
 
             return res.json({
                 reply: replyText
             });
         }
 
-        // 🤖 fallback reply
         return res.json({
             reply: "AI bujhte pareni 😅"
         });
 
-    } catch (error) {
-        console.log("Error:", error);
+    } catch (err) {
+        console.log("ERROR:", err);
         return res.json({
             reply: "Server error ❌"
         });
     }
 });
 
-// 🌐 Test route
+// 🌐 test
 app.get("/", (req, res) => {
-    res.send("AI Server Running 🚀");
+    res.send("Server Running 🚀");
 });
 
-// 🔥 Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on port", PORT));
+app.listen(PORT, () => console.log("Running on port", PORT));
