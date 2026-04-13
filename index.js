@@ -16,7 +16,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // 🔥 👉 এখানে তোর AI app এর API key বসা
-const DEFAULT_API_KEY = "sk-gfsms0vz1xuge4nsjxwn9"; // ⚠️ নিজেরটা বসা
+const DEFAULT_API_KEY = "sk-KQ936GT78"; // ⚠️ নিজেরটা বসা
 
 // 🔥 MAIN API (WhatsAuto use করবে)
 app.post("/ai", async (req, res) => {
