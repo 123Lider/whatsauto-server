@@ -1,6 +1,12 @@
+const express = require("express");
+const cors = require("cors");
 const admin = require("firebase-admin");
 
-// 🔥 add this top e
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Firebase
 const serviceAccount = require("./firebase-key.json");
 
 admin.initializeApp({
@@ -9,36 +15,54 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// 🔥 replace your reply logic
+// 🔥 MAIN API
 app.post("/ai", async (req, res) => {
 
     const message = req.body.message;
-    const apiKey = req.query.apiKey; // 👈 header থেকে নিচ্ছে
+    const apiKey = req.query.apiKey;
 
-    // API key check
-    const userSnap = await db.collection("users")
-        .where("apiKey", "==", apiKey)
-        .get();
+    console.log("API KEY:", apiKey); // 🔥 debug
 
-    if (userSnap.empty) {
-        return res.json({ reply: "Invalid API key ❌" });
+    if (!apiKey) {
+        return res.json({ reply: "API key missing ❌" });
     }
 
-    const uid = userSnap.docs[0].id;
+    try {
+        const userSnap = await db.collection("users")
+            .where("apiKey", "==", apiKey)
+            .get();
 
-    // training check
-    const snap = await db.collection("training")
-        .where("uid", "==", uid)
-        .where("trigger", "==", message.toLowerCase())
-        .get();
+        if (userSnap.empty) {
+            return res.json({ reply: "Invalid API key ❌" });
+        }
 
-    if (!snap.empty) {
+        const uid = userSnap.docs[0].id;
+
+        const snap = await db.collection("training")
+            .where("uid", "==", uid)
+            .where("trigger", "==", message.toLowerCase())
+            .get();
+
+        if (!snap.empty) {
+            return res.json({
+                reply: snap.docs[0].data().response
+            });
+        }
+
         return res.json({
-            reply: snap.docs[0].data().response
+            reply: "AI bujhte pareni 😅"
+        });
+
+    } catch (e) {
+        console.log(e);
+        return res.json({
+            reply: "Server error ❌"
         });
     }
-
-    return res.json({
-        reply: "AI bujhte pareni 😅"
-    });
 });
+
+app.get("/", (req, res) => {
+    res.send("Server Running 🚀");
+});
+
+app.listen(3000, () => console.log("Running..."));
