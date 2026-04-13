@@ -22,9 +22,19 @@ const DEFAULT_API_KEY = "sk-gfsms0vz1xuge4nsjxwn9"; // ⚠️ নিজেরট
 app.post("/ai", async (req, res) => {
 
     try {
-        const message = req.body.message;
+       const message =
+    req.body.message ||
+    req.body.text ||
+    req.body.msg ||
+    "";
 
-        console.log("Incoming message:", message);
+console.log("Incoming:", req.body);
+
+if (!message) {
+    return res.json({
+        reply: "Message pai nai ❌"
+    });
+}
 
         // 🔥 API key (fixed)
         const apiKey = DEFAULT_API_KEY;
