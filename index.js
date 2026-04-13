@@ -37,7 +37,7 @@ if (!message) {
 }
 
         // 🔥 API key (fixed)
-        const apiKey = DEFAULT_API_KEY;
+        const apiKey = sk-KQ936GT78;
 
         // 🔍 user find
         const userSnap = await db.collection("users")
