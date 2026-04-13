@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Firebase
+// 🔥 Firebase Admin Setup
 const serviceAccount = require("./firebase-key.json");
 
 admin.initializeApp({
@@ -15,19 +15,21 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// 🔥 MAIN API
+// 🔥 👉 এখানে তোর AI app এর API key বসা
+const DEFAULT_API_KEY = "sk-gfsms0vz1xuge4nsjxwn9"; // ⚠️ নিজেরটা বসা
+
+// 🔥 MAIN API (WhatsAuto use করবে)
 app.post("/ai", async (req, res) => {
 
-    const message = req.body.message;
-    const apiKey = req.query.apiKey;
-
-    console.log("API KEY:", apiKey); // 🔥 debug
-
-    if (!apiKey) {
-        return res.json({ reply: "API key missing ❌" });
-    }
-
     try {
+        const message = req.body.message;
+
+        console.log("Incoming message:", message);
+
+        // 🔥 API key (fixed)
+        const apiKey = DEFAULT_API_KEY;
+
+        // 🔍 user find
         const userSnap = await db.collection("users")
             .where("apiKey", "==", apiKey)
             .get();
@@ -38,31 +40,42 @@ app.post("/ai", async (req, res) => {
 
         const uid = userSnap.docs[0].id;
 
+        console.log("User UID:", uid);
+
+        // 🧠 training check
         const snap = await db.collection("training")
             .where("uid", "==", uid)
             .where("trigger", "==", message.toLowerCase())
             .get();
 
         if (!snap.empty) {
+            const replyText = snap.docs[0].data().response;
+
+            console.log("Matched reply:", replyText);
+
             return res.json({
-                reply: snap.docs[0].data().response
+                reply: replyText
             });
         }
 
+        // 🤖 fallback reply
         return res.json({
             reply: "AI bujhte pareni 😅"
         });
 
-    } catch (e) {
-        console.log(e);
+    } catch (error) {
+        console.log("Error:", error);
         return res.json({
             reply: "Server error ❌"
         });
     }
 });
 
+// 🌐 Test route
 app.get("/", (req, res) => {
-    res.send("Server Running 🚀");
+    res.send("AI Server Running 🚀");
 });
 
-app.listen(3000, () => console.log("Running..."));
+// 🔥 Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running on port", PORT));
