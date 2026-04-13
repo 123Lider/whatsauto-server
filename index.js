@@ -13,7 +13,7 @@ const db = admin.firestore();
 app.post("/ai", async (req, res) => {
 
     const message = req.body.message;
-    const apiKey = req.headers.apikey; // 👈 header থেকে নিচ্ছে
+    const apiKey = req.headers['apikey']; // 👈 header থেকে নিচ্ছে
 
     // API key check
     const userSnap = await db.collection("users")
