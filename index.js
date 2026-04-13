@@ -25,14 +25,19 @@ app.post("/ai", async (req, res) => {
 
     // 🔥 message detect (সব possible field)
     const message =
-        req.body.message ||
-        req.body.msg ||
-        req.body.text ||
-        req.body.body ||
-        req.body.content ||
-        "";
+    req.body.message ||
+    req.body.msg ||
+    req.body.text ||
+    req.body.body ||
+    req.body.content ||
+    req.query.message ||
+    req.query.msg ||
+    req.query.text ||
+    req.query.body ||
+    "";
 
-    console.log("MESSAGE:", message);
+    console.log("BODY:", req.body);
+    console.log("QUERY:", req.query);
 
     if (!message) {
         return res.json({
