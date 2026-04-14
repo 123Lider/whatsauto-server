@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 // 🔥 OpenRouter API KEY
-const OPENROUTER_API_KEY = "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"; // 🔁 নিজেরটা বসা
+const OPENROUTER_API_KEY = "sk-or-v1-"; // 🔁 নিজেরটা বসা
 
 // 🔥 MAIN API (WhatsAuto hit করবে)
 app.all("/ai", async (req, res) => {
