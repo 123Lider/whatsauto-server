@@ -1,5 +1,5 @@
 {
-  "name": "ai-server",
+  "name": "openrouter-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
