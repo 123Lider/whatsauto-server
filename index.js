@@ -37,7 +37,7 @@ app.all("/ai", async (req, res) => {
         const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": "Bearer sk-or-v1-XXXXXXXXXXXX", // 👈 নিজের key বসা
+                "Authorization": "Bearer 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", // 👈 নিজের key বসা
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
