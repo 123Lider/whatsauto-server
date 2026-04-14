@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 // 🔥 OpenRouter API KEY (নিজেরটা বসা)
-const API_KEY = "sk-or-v1-XXXXXXXXXXXX";
+const API_KEY = "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";
 
 // 🔥 MAIN AI ROUTE
 app.all("/ai", async (req, res) => {
