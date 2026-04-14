@@ -56,7 +56,7 @@ app.all("/ai", async (req, res) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openai/gpt-3.5-turbo", // 🔥 stable model
+                model: "openai/gpt-oss-120:free", // 🔥 stable model
                 messages: [
                     {
                         role: "system",
