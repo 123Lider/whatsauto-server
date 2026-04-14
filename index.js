@@ -27,7 +27,7 @@ app.all("/ai", async (req, res) => {
 
     if (!text) {
         return res.json({
-            reply: "msg pai nai ❌"
+            reply: "No "
         });
     }
 
