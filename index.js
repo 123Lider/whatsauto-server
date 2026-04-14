@@ -1,87 +1,63 @@
 const express = require("express");
 const cors = require("cors");
-const admin = require("firebase-admin");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔥 Firebase setup
-const serviceAccount = require("./firebase-key.json");
+// 🔥 👉 OpenRouter API key বসা
+const OPENROUTER_API_KEY = "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"; // 👈 নিজেরটা বসা
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
-
-// 🔥 👉 তোর API key
-const DEFAULT_API_KEY = "sk-KQ936GT78";
-
-// 🔥 MAIN API
 app.all("/ai", async (req, res) => {
 
-    // 🔥 debug logs
-    console.log("METHOD:", req.method);
-    console.log("BODY:", req.body);
-    console.log("QUERY:", req.query);
-
-    // 🔥 message detect (body + query সব)
+    // 🔍 message detect (body + query)
     const message =
         req.body?.message ||
         req.body?.msg ||
         req.body?.text ||
-        req.body?.body ||
-        req.body?.content ||
         req.query?.message ||
         req.query?.msg ||
         req.query?.text ||
-        req.query?.body ||
         "";
 
-    console.log("FINAL MESSAGE:", message);
+    console.log("MESSAGE:", message);
 
     if (!message) {
         return res.json({
-            reply: "msg pai nai ❌"
+            reply: "Message pai nai ❌"
         });
     }
 
     try {
-        const apiKey = DEFAULT_API_KEY;
+        const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "openai/gpt-3.5-turbo",
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a smart Bangla AI assistant. Reply short and natural."
+                    },
+                    {
+                        role: "user",
+                        content: message
+                    }
+                ]
+            })
+        });
 
-        // 🔍 user find
-        const userSnap = await db.collection("users")
-            .where("apiKey", "==", apiKey)
-            .get();
+        const data = await aiRes.json();
 
-        if (userSnap.empty) {
-            return res.json({ reply: "Invalid API key ❌" });
-        }
+        const reply =
+            data?.choices?.[0]?.message?.content ||
+            "AI reply dite pareni ❌";
 
-        const uid = userSnap.docs[0].id;
-
-        console.log("USER UID:", uid);
-
-        // 🧠 training match
-        const snap = await db.collection("training")
-            .where("uid", "==", uid)
-            .where("trigger", "==", message.toLowerCase().trim())
-            .get();
-
-        if (!snap.empty) {
-            const replyText = snap.docs[0].data().response;
-
-            console.log("REPLY:", replyText);
-
-            return res.json({
-                reply: replyText
-            });
-        }
-
-        // 🤖 fallback
         return res.json({
-            reply: "AI bujhte pareni 😅"
+            reply: reply
         });
 
     } catch (err) {
@@ -92,11 +68,10 @@ app.all("/ai", async (req, res) => {
     }
 });
 
-// 🌐 test route
+// 🌐 test
 app.get("/", (req, res) => {
-    res.send("Server Running 🚀");
+    res.send("GPT Server Running 🚀");
 });
 
-// 🔥 start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Running on port", PORT));
