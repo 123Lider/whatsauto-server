@@ -5,17 +5,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔥 OpenRouter API KEY
-const OPENROUTER_API_KEY = "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"; // 🔁 নিজেরটা বসা
-
-// 🔥 MAIN API (WhatsAuto hit করবে)
+// 🔥 MAIN ROUTE
 app.all("/ai", async (req, res) => {
 
-    console.log("FULL BODY:", req.body);
-    console.log("FULL QUERY:", req.query);
+    console.log("BODY:", req.body);
+    console.log("QUERY:", req.query);
 
-    // 🔥 message detect (সব দিক থেকে)
-    const message =
+    // 🔍 message detect (WhatsAuto সব case cover)
+    const text =
         req.body?.message ||
         req.body?.msg ||
         req.body?.text ||
@@ -26,9 +23,9 @@ app.all("/ai", async (req, res) => {
         req.query?.body ||
         "";
 
-    console.log("FINAL MESSAGE:", message);
+    console.log("FINAL TEXT:", text);
 
-    if (!message) {
+    if (!text) {
         return res.json({
             reply: "msg pai nai ❌"
         });
@@ -36,14 +33,15 @@ app.all("/ai", async (req, res) => {
 
     try {
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        // 🔥 EXACT same OpenRouter call (তোর HTML এর মতো)
+        const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                "Authorization": "Bearer sk-or-v1-XXXXXXXXXXXX", // 👈 নিজের key বসা
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openai/gpt-oss-120b:free", // 🔥 same as your HTML
+                model: "openai/gpt-oss-120b:free", // 👈 same model
                 messages: [
                     {
                         role: "system",
@@ -51,15 +49,15 @@ app.all("/ai", async (req, res) => {
                     },
                     {
                         role: "user",
-                        content: message
+                        content: text
                     }
                 ]
             })
         });
 
-        const data = await response.json();
+        const data = await aiRes.json();
 
-        console.log("AI RAW:", data);
+        console.log("AI DATA:", data);
 
         const reply =
             data?.choices?.[0]?.message?.content ||
@@ -77,10 +75,10 @@ app.all("/ai", async (req, res) => {
     }
 });
 
-// test route
+// test
 app.get("/", (req, res) => {
-    res.send("OpenRouter AI Server Running 🚀");
+    res.send("OpenRouter Server Running 🚀");
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running on port", PORT));
+app.listen(PORT, () => console.log("Running on", PORT));
