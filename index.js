@@ -19,25 +19,27 @@ const db = admin.firestore();
 const DEFAULT_API_KEY = "sk-KQ936GT78";
 
 // 🔥 MAIN API
-app.post("/ai", async (req, res) => {
+app.all("/ai", async (req, res) => {
 
-    console.log("FULL BODY:", JSON.stringify(req.body, null, 2));
-
-    // 🔥 message detect (সব possible field)
-    const message =
-    req.body.message ||
-    req.body.msg ||
-    req.body.text ||
-    req.body.body ||
-    req.body.content ||
-    req.query.message ||
-    req.query.msg ||
-    req.query.text ||
-    req.query.body ||
-    "";
-
+    // 🔥 debug logs
+    console.log("METHOD:", req.method);
     console.log("BODY:", req.body);
     console.log("QUERY:", req.query);
+
+    // 🔥 message detect (body + query সব)
+    const message =
+        req.body?.message ||
+        req.body?.msg ||
+        req.body?.text ||
+        req.body?.body ||
+        req.body?.content ||
+        req.query?.message ||
+        req.query?.msg ||
+        req.query?.text ||
+        req.query?.body ||
+        "";
+
+    console.log("FINAL MESSAGE:", message);
 
     if (!message) {
         return res.json({
@@ -64,7 +66,7 @@ app.post("/ai", async (req, res) => {
         // 🧠 training match
         const snap = await db.collection("training")
             .where("uid", "==", uid)
-            .where("trigger", "==", message.toLowerCase())
+            .where("trigger", "==", message.toLowerCase().trim())
             .get();
 
         if (!snap.empty) {
@@ -77,6 +79,7 @@ app.post("/ai", async (req, res) => {
             });
         }
 
+        // 🤖 fallback
         return res.json({
             reply: "AI bujhte pareni 😅"
         });
@@ -89,10 +92,11 @@ app.post("/ai", async (req, res) => {
     }
 });
 
-// 🌐 test
+// 🌐 test route
 app.get("/", (req, res) => {
     res.send("Server Running 🚀");
 });
 
+// 🔥 start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Running on port", PORT));
